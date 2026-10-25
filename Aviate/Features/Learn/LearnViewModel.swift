@@ -1,5 +1,6 @@
 import MapKit
 import Observation
+import SwiftUI
 
 @MainActor
 @Observable
