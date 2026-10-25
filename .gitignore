@@ -1,0 +1,13 @@
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+build/
+*.xcresult
+
+# Secrets (added in the auth step)
+GoogleService-Info.plist
+Secrets.xcconfig
+
+.DS_Store

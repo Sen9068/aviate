@@ -1,0 +1,65 @@
+name: Aviate
+
+options:
+  bundleIdPrefix: com.aviate
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""   # set your team ID here or in Xcode
+
+targets:
+  Aviate:
+    type: application
+    platform: iOS
+    sources:
+      - path: Aviate
+    info:
+      path: Aviate/Info.plist
+      properties:
+        CFBundleDisplayName: Aviate
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIUserInterfaceStyle: Dark
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        # Must be unique on the App Store and match `bundle_identifier` in codemagic.yaml.
+        PRODUCT_BUNDLE_IDENTIFIER: com.CHANGE-ME.aviate
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ENABLE_PREVIEWS: YES
+
+  AviateTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: AviateTests
+    dependencies:
+      - target: Aviate
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.CHANGE-ME.aviate.tests
+
+schemes:
+  Aviate:
+    build:
+      targets:
+        Aviate: all
+        AviateTests: [test]
+    test:
+      targets:
+        - AviateTests

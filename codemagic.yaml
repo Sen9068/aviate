@@ -1,0 +1,53 @@
+# Cloud build → TestFlight, so Aviate can be built and installed without a Mac.
+# Setup steps: README.md → "Running on your iPhone from Windows".
+workflows:
+  ios-testflight:
+    name: Aviate → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # Name of the App Store Connect API key you add under Codemagic → Team integrations.
+      app_store_connect: Aviate ASC Key
+    environment:
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        # Must match PRODUCT_BUNDLE_IDENTIFIER in project.yml.
+        bundle_identifier: com.CHANGE-ME.aviate
+      vars:
+        XCODE_PROJECT: Aviate.xcodeproj
+        XCODE_SCHEME: Aviate
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+    scripts:
+      - name: Generate Xcode project
+        script: |
+          brew install xcodegen
+          xcodegen generate
+      - name: Apply signing profiles
+        script: xcode-project use-profiles
+      - name: Run unit tests
+        script: |
+          set -o pipefail
+          xcodebuild test \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Build IPA
+        # Every TestFlight upload needs a higher build number; use Codemagic's build counter.
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME" \
+            --archive-xcargs "CURRENT_PROJECT_VERSION=$BUILD_NUMBER"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
